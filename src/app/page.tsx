@@ -10,7 +10,7 @@ export default function Home() {
   const [datePlan, setDatePlan] = useState({
     foodSpot: '',
     activity: '',
-    date: null as string | null,
+    date: null as Date | null,
     time: ''
   });
 
@@ -19,11 +19,13 @@ export default function Home() {
   const handleSavePlan = async () => {
     if (datePlan.foodSpot && datePlan.activity && datePlan.date && datePlan.time) {
       try {
+
+        const dateStr = datePlan.date.toISOString();
         // Build the URL with query parameters
         const queryParams = new URLSearchParams({
           foodSpot: datePlan.foodSpot,
           activity: datePlan.activity,
-          date: datePlan.date!,
+          date: dateStr,
           time: datePlan.time
         }).toString();
 

@@ -36,27 +36,27 @@ export const FoodSpotSelector: React.FC<FoodSpotSelectorProps> = ({ onSelect }) 
   const findNearestRestaurants = async (cuisine: string) => {
     setIsLoading(true);
     setError(null);
-
+  
     try {
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject);
       });
-
+  
       const { latitude, longitude } = position.coords;
       const map = new google.maps.Map(document.createElement('div'));
       const service = new google.maps.places.PlacesService(map);
-
+  
       const request = {
         location: new google.maps.LatLng(latitude, longitude),
         radius: 5000,
         type: 'restaurant',
         keyword: cuisine,
       };
-
+  
       service.nearbySearch(request, (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
           const restaurants = results.map((place) => ({
-            name: place.name,
+            name: place.name || 'Unknown', // Fallback to 'Unknown' if name is undefined
             address: place.vicinity || 'Unknown address',
             rating: place.rating || 0,
           }));
@@ -72,6 +72,7 @@ export const FoodSpotSelector: React.FC<FoodSpotSelectorProps> = ({ onSelect }) 
       console.error(err);
     }
   };
+  
 
   const handleSelect = (spot: string) => {
     findNearestRestaurants(spot);

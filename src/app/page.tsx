@@ -33,23 +33,23 @@ export default function Home() {
         router.push(`/confirmation?${queryParams}`);
 
         // Send the confirmation email in the background
-        const response = await fetch('/api/sendConfirmationEmail', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            foodSpot: datePlan.foodSpot,
-            activity: datePlan.activity,
-            date: datePlan.date,
-            time: datePlan.time,
-            recipientEmail: 'recipient@example.com' // Replace with the recipient's email
-          })
-        });
+        // const response = await fetch('/api/sendConfirmationEmail', {
+        //   method: 'POST',
+        //   headers: { 'Content-Type': 'application/json' },
+        //   body: JSON.stringify({
+        //     foodSpot: datePlan.foodSpot,
+        //     activity: datePlan.activity,
+        //     date: datePlan.date,
+        //     time: datePlan.time,
+        //     recipientEmail: 'recipient@example.com' // Replace with the recipient's email
+        //   })
+        // });
 
-        if (!response.ok) {
-          throw new Error('Failed to send confirmation email');
-        }
+        // if (!response.ok) {
+        //   throw new Error('Failed to send confirmation email');
+        // }
 
-        alert('Date plan confirmation email sent successfully!');
+        // alert('Date plan confirmation email sent successfully!');
       } catch (error) {
         console.error('Error sending email:', error);
         alert('Failed to send confirmation email');
@@ -85,7 +85,7 @@ export default function Home() {
           onClick={handleSavePlan}
           className="bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600"
         >
-          Confirm and Send Email
+          Next
         </button>
       </div>
     </main>

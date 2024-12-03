@@ -11,7 +11,7 @@ interface DessertSpot {
 const DESSERT_CATEGORIES = [
   'Ice Cream', 'Bakery', 'Donuts', 'Frozen Yogurt',
   'Cupcakes', 'Pastries', 'Pies', 'Cookies', 'Chocolates',
-  'Gelato', 'Crepes', 'Candy'
+  'Gelato', 'Crepes', 'Candy', 'Bubble Tea', 'Milk Tea'
 ];
 
 interface DessertSpotSelectorProps {

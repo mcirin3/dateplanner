@@ -2,24 +2,25 @@
 
 import React, { useState, useEffect } from 'react';
 
-interface ActivityPlace {
+interface DessertSpot {
   name: string;
   address: string;
   rating: number;
 }
 
-const ACTIVITIES = [
-  'Bowling', 'Pool', 'Mini Golf', 'Walk', 'Drive', 
-  'Movie', 'Concert', 'Art Gallery', 'Hiking', 'Picnic', 'Billiards'
+const DESSERT_CATEGORIES = [
+  'Ice Cream', 'Bakery', 'Donuts', 'Frozen Yogurt',
+  'Cupcakes', 'Pastries', 'Pies', 'Cookies', 'Chocolates',
+  'Gelato', 'Crepes', 'Candy'
 ];
 
-interface ActivitySelectorProps {
-  onSelect: (activity: string) => void; // Pass selected data to parent
+interface DessertSpotSelectorProps {
+  onSelect: (selection: string) => void; // Pass selected data to parent
 }
 
-export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) => {
-  const [nearbyPlaces, setNearbyPlaces] = useState<ActivityPlace[]>([]);
-  const [selectedActivity, setSelectedActivity] = useState<string | null>(null); // Track activity
+export const DessertSpotSelector: React.FC<DessertSpotSelectorProps> = ({ onSelect }) => {
+  const [nearbyDesserts, setNearbyDesserts] = useState<DessertSpot[]>([]);
+  const [selectedDessert, setSelectedDessert] = useState<string | null>(null); // Track the selected dessert spot
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,7 +33,7 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
     }
   }, []);
 
-  const findNearbyPlaces = async (activity: string) => {
+  const findNearestDesserts = async (category: string) => {
     setIsLoading(true);
     setError(null);
 
@@ -48,20 +49,20 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
       const request = {
         location: new google.maps.LatLng(latitude, longitude),
         radius: 5000,
-        type: 'establishment',
-        keyword: activity,
+        type: 'bakery', // General type for desserts
+        keyword: category, // Use category to filter results
       };
 
       service.nearbySearch(request, (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-          const places = results.map((place) => ({
-            name: place.name || 'Unknown',
+          const desserts = results.map((place) => ({
+            name: place.name || 'Unknown', // Fallback to 'Unknown' if name is undefined
             address: place.vicinity || 'Unknown address',
             rating: place.rating || 0,
           }));
-          setNearbyPlaces(places.slice(0, 6));
+          setNearbyDesserts(desserts.slice(0, 6));
         } else {
-          setError('No nearby places found.');
+          setError('No nearby dessert spots found.');
         }
         setIsLoading(false);
       });
@@ -72,30 +73,27 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
     }
   };
 
-  const handleActivitySelect = (activity: string) => {
-    setSelectedActivity(activity);
-    findNearbyPlaces(activity); // Fetch places for the selected activity
+  const handleSelect = (spot: string) => {
+    findNearestDesserts(spot);
   };
 
-  const handlePlaceSelect = (place: ActivityPlace) => {
-    const formatted = `${place.name}, ${place.address} (Rating: ${place.rating}/5)`;
-    setSelectedActivity(formatted); // Highlight selected activity
+  const handleDessertSelect = (dessert: DessertSpot) => {
+    const formatted = `${dessert.name}, ${dessert.address} (Rating: ${dessert.rating}/5)`;
+    setSelectedDessert(formatted); // Update selected dessert spot
     onSelect(formatted); // Pass formatted string to parent
   };
 
   return (
     <div className="p-6 bg-white shadow rounded-lg">
-      <h2 className="text-xl font-semibold mb-6">Choose an Activity</h2>
+      <h2 className="text-xl font-semibold mb-6">Choose a Dessert Spot</h2>
       <div className="flex flex-wrap gap-4 mb-6">
-        {ACTIVITIES.map((activity) => (
+        {DESSERT_CATEGORIES.map((spot) => (
           <button
-            key={activity}
-            onClick={() => handleActivitySelect(activity)}
-            className={`p-2 border rounded ${
-              selectedActivity === activity ? 'bg-green-500 text-white' : 'hover:bg-green-100'
-            }`}
+            key={spot}
+            onClick={() => handleSelect(spot)}
+            className="bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-600"
           >
-            {activity}
+            {spot}
           </button>
         ))}
       </div>
@@ -104,19 +102,19 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
       {error && <p className="text-red-500">{error}</p>}
 
       <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {nearbyPlaces.map((place, index) => (
+        {nearbyDesserts.map((dessert, index) => (
           <div
             key={index}
             className={`p-4 rounded-lg shadow-lg cursor-pointer ${
-              selectedActivity === `${place.name}, ${place.address} (Rating: ${place.rating}/5)`
+              selectedDessert === `${dessert.name}, ${dessert.address} (Rating: ${dessert.rating}/5)`
                 ? 'bg-green-500 text-white'
                 : 'bg-white hover:bg-gray-100'
             }`}
-            onClick={() => handlePlaceSelect(place)}
+            onClick={() => handleDessertSelect(dessert)}
           >
-            <h3 className="text-lg font-bold mb-2">{place.name}</h3>
-            <p className="text-sm">{place.address}</p>
-            <p className="mt-2">Rating: {place.rating}/5</p>
+            <h3 className="text-lg font-bold mb-2">{dessert.name}</h3>
+            <p className="text-sm">{dessert.address}</p>
+            <p className="mt-2">Rating: {dessert.rating}/5</p>
           </div>
         ))}
       </div>

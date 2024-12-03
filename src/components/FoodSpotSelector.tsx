@@ -9,9 +9,9 @@ interface Restaurant {
 }
 
 const FOOD_CATEGORIES = [
-  'Chinese', 'Mexican', 'Indian', 'Filipino',
-  'American', 'Italian', 'Japanese', 'Korean',
-  'Thai', 'Mediterranean'
+  'Dim Sum', 'Tacos', 'Curry', 'Filipino',
+  'Burgers', 'Italian', 'Sushi', 'Ramen', 'Korean BBQ',
+  'Thai', 'Mediterranean', 'Fast Food'
 ];
 
 interface FoodSpotSelectorProps {
@@ -60,7 +60,7 @@ export const FoodSpotSelector: React.FC<FoodSpotSelectorProps> = ({ onSelect }) 
             address: place.vicinity || 'Unknown address',
             rating: place.rating || 0,
           }));
-          setNearbyRestaurants(restaurants.slice(0, 3));
+          setNearbyRestaurants(restaurants.slice(0, 6));
         } else {
           setError('No nearby restaurants found.');
         }

@@ -55,7 +55,7 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
       service.nearbySearch(request, (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
           const places = results.map((place) => ({
-            name: place.name,
+            name: place.name || 'Unknown',
             address: place.vicinity || 'Unknown address',
             rating: place.rating || 0,
           }));

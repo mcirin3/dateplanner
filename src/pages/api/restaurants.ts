@@ -49,14 +49,3 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   return R * c; // Distance in km
 }
 
-export default async function handler(req, res) {
-  const { latitude, longitude, cuisine } = req.query;
-
-  if (!latitude || !longitude || !cuisine) {
-    return res.status(400).json({ error: "Missing required query parameters" });
-  }
-
-  // Additional logic for fetching data (e.g., from Google Maps API)
-  res.status(200).json({ message: "API is working!" });
-}
-

@@ -26,7 +26,7 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
   useEffect(() => {
     if (!window.google) {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDvyYyUfb1ciyaTjhUSZlaGhKzvnw5fT14&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDjwR3F1GrzRTdS7QYy3akXbRhnsCX3t_8&libraries=places`;
       script.async = true;
       document.head.appendChild(script);
     }

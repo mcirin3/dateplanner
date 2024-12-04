@@ -23,11 +23,12 @@ export const DessertSpotSelector: React.FC<DessertSpotSelectorProps> = ({ onSele
   const [selectedDessert, setSelectedDessert] = useState<string | null>(null); // Track the selected dessert spot
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [manualSearchTerm, setManualSearchTerm] = useState<string>('');
 
   useEffect(() => {
     if (!window.google) {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDvyYyUfb1ciyaTjhUSZlaGhKzvnw5fT14&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDjwR3F1GrzRTdS7QYy3akXbRhnsCX3t_8&libraries=places`;
       script.async = true;
       document.head.appendChild(script);
     }
@@ -77,6 +78,14 @@ export const DessertSpotSelector: React.FC<DessertSpotSelectorProps> = ({ onSele
     findNearestDesserts(spot);
   };
 
+  const handleManualSearch = () => {
+    if (manualSearchTerm.trim() !== '') {
+      findNearestDesserts(manualSearchTerm);
+    } else {
+      setError('Please enter a valid search term.');
+    }
+  };
+
   const handleDessertSelect = (dessert: DessertSpot) => {
     const formatted = `${dessert.name}, ${dessert.address} (Rating: ${dessert.rating}/5)`;
     setSelectedDessert(formatted); // Update selected dessert spot
@@ -96,6 +105,21 @@ export const DessertSpotSelector: React.FC<DessertSpotSelectorProps> = ({ onSele
             {spot}
           </button>
         ))}
+      </div> 
+      <div className = "flex items-center gap-2 mb-6">
+        <input 
+        type = "text"
+        value = {manualSearchTerm}
+        onChange = {(e) => setManualSearchTerm(e.target.value)} 
+        placeholder = "Search for a place..."
+        className = "border px-4 py-2 rounded-lg w-full"
+        />
+        <button
+        onClick={handleManualSearch}
+        className = "bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+        >
+        Search
+        </button>
       </div>
 
       {isLoading && <p>Loading...</p>}

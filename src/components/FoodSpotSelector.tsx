@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState, useEffect } from 'react';
 
 interface Restaurant {
@@ -10,53 +8,56 @@ interface Restaurant {
 
 const FOOD_CATEGORIES = [
   'Dim Sum', 'Tacos', 'Curry', 'Filipino',
-  'Burgers', 'Italian', 'Sushi', 'Ramen', 'Korean BBQ',
-  'Thai', 'Mediterranean', 'Fast Food'
+  'Burgers', 'Spaghetti', 'Sushi', 'Ramen', 'Korean BBQ',
+  'Thai', 'Mediterranean', 'Fast Food', 'Dan Dan Noodles',
+  'Pho', 'Udon', 'Dumplings', 'Korean Fried Chicken',
+  'Chipotle', 'Pizza', 'South African', 'Indian' 
 ];
 
 interface FoodSpotSelectorProps {
-  onSelect: (selection: string) => void; // Pass selected data to parent
+  onSelect: (selection: string) => void;
 }
 
 export const FoodSpotSelector: React.FC<FoodSpotSelectorProps> = ({ onSelect }) => {
   const [nearbyRestaurants, setNearbyRestaurants] = useState<Restaurant[]>([]);
-  const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(null); // Track the selected restaurant
+  const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [manualSearchTerm, setManualSearchTerm] = useState<string>(''); // State for manual input
 
   useEffect(() => {
     if (!window.google) {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDvyYyUfb1ciyaTjhUSZlaGhKzvnw5fT14&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDjwR3F1GrzRTdS7QYy3akXbRhnsCX3t_8&libraries=places`;
       script.async = true;
       document.head.appendChild(script);
     }
   }, []);
 
-  const findNearestRestaurants = async (cuisine: string) => {
+  const findNearestRestaurants = async (query: string) => {
     setIsLoading(true);
     setError(null);
-  
+
     try {
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject);
       });
-  
+
       const { latitude, longitude } = position.coords;
       const map = new google.maps.Map(document.createElement('div'));
       const service = new google.maps.places.PlacesService(map);
-  
+
       const request = {
         location: new google.maps.LatLng(latitude, longitude),
-        radius: 5000,
+        radius: 15000,
         type: 'restaurant',
-        keyword: cuisine,
+        keyword: query,
       };
-  
+
       service.nearbySearch(request, (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
           const restaurants = results.map((place) => ({
-            name: place.name || 'Unknown', // Fallback to 'Unknown' if name is undefined
+            name: place.name || 'Unknown',
             address: place.vicinity || 'Unknown address',
             rating: place.rating || 0,
           }));
@@ -72,16 +73,23 @@ export const FoodSpotSelector: React.FC<FoodSpotSelectorProps> = ({ onSelect }) 
       console.error(err);
     }
   };
-  
 
   const handleSelect = (spot: string) => {
     findNearestRestaurants(spot);
   };
 
+  const handleManualSearch = () => {
+    if (manualSearchTerm.trim() !== '') {
+      findNearestRestaurants(manualSearchTerm);
+    } else {
+      setError('Please enter a valid search term.');
+    }
+  };
+
   const handleRestaurantSelect = (restaurant: Restaurant) => {
     const formatted = `${restaurant.name}, ${restaurant.address} (Rating: ${restaurant.rating}/5)`;
-    setSelectedRestaurant(formatted); // Update selected restaurant
-    onSelect(formatted); // Pass formatted string to parent
+    setSelectedRestaurant(formatted);
+    onSelect(formatted);
   };
 
   return (
@@ -97,6 +105,22 @@ export const FoodSpotSelector: React.FC<FoodSpotSelectorProps> = ({ onSelect }) 
             {spot}
           </button>
         ))}
+      </div>
+
+      <div className="flex items-center gap-2 mb-6">
+        <input
+          type="text"
+          value={manualSearchTerm}
+          onChange={(e) => setManualSearchTerm(e.target.value)}
+          placeholder="Search for a place..."
+          className="border px-4 py-2 rounded-lg w-full"
+        />
+        <button
+          onClick={handleManualSearch}
+          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+        >
+          Search
+        </button>
       </div>
 
       {isLoading && <p>Loading...</p>}

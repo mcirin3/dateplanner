@@ -6,6 +6,7 @@ interface SendConfirmationEmailParams {
   email: string;
   foodSpot: string;
   activity: string;
+  dessertSpot: string;
   date: string;
   time: string;
 }
@@ -14,6 +15,7 @@ const sendConfirmationEmail = async ({
   email,
   foodSpot,
   activity,
+  dessertSpot,
   date,
   time,
 }: SendConfirmationEmailParams): Promise<{ success: boolean; error?: string }> => {
@@ -34,6 +36,7 @@ Here are the details of your planned date:
 
 Food Spot: ${foodSpot}
 Activity: ${activity}
+Dessert: ${dessertSpot}
 Date: ${date}
 Time: ${time}
     `,
@@ -52,13 +55,13 @@ Time: ${time}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { email, foodSpot, activity, date, time } = req.body;
+    const { email, foodSpot, activity, dessertSpot, date, time } = req.body;
 
-    if (!email || !foodSpot || !activity || !date || !time) {
+    if (!email || !foodSpot || !activity || !dessertSpot|| !date || !time) {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
-    const result = await sendConfirmationEmail({ email, foodSpot, activity, date, time });
+    const result = await sendConfirmationEmail({ email, foodSpot, activity, dessertSpot, date, time });
 
     if (result.success) {
       return res.status(200).json({ message: 'Email sent successfully!' });

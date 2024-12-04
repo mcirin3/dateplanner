@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 const ConfirmationPage = () => {
   const router = useRouter();
-  const { foodSpot, activity, date, time } = router.query;
+  const { foodSpot, activity, dessertSpot, date, time } = router.query;
 
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
@@ -28,7 +28,7 @@ const ConfirmationPage = () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ foodSpot, activity, date, time, email }),
+      body: JSON.stringify({ foodSpot, activity, date, dessertSpot, time, email }),
     });
 
     setIsSubmitting(false);
@@ -51,6 +51,10 @@ const ConfirmationPage = () => {
         <div>
           <strong className="block text-gray-700">Activity:</strong>
           <p className="text-gray-900">{activity}</p>
+        </div>
+        <div>
+          <strong className="block text-gray-700">Dessert Spot:</strong>
+          <p className="text-gray-900">{dessertSpot}</p>
         </div>
         <div>
           <strong className="block text-gray-700">Date:</strong>

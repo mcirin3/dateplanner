@@ -1,22 +1,32 @@
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
-
 const ConfirmationPage = () => {
   const router = useRouter();
   const { foodSpot, activity, dessertSpot, date, time } = router.query;
 
-  const [email, setEmail] = useState('');
+  const [emailList, setEmailList] = useState<string[]>(['']); // Start with one email field
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
+  const handleEmailChange = (index: number, value: string) => {
+    const updatedEmails = [...emailList];
+    updatedEmails[index] = value;
+    setEmailList(updatedEmails);
   };
 
-  const handleSendEmail = async () => {
-    if (!email) {
-      setError('Please enter an email address.');
+  const handleAddEmail = () => {
+    setEmailList([...emailList, '']);
+  };
+
+  const handleRemoveEmail = (index: number) => {
+    const updatedEmails = emailList.filter((_, i) => i !== index);
+    setEmailList(updatedEmails);
+  };
+
+  const handleSendEmails = async () => {
+    if (emailList.some((email) => email.trim() === '')) {
+      setError('Please ensure all email fields are filled out.');
       return;
     }
 
@@ -28,15 +38,22 @@ const ConfirmationPage = () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ foodSpot, activity, date, dessertSpot, time, email }),
+      body: JSON.stringify({
+        foodSpot,
+        activity,
+        dessertSpot,
+        date,
+        time,
+        emails: emailList,
+      }),
     });
 
     setIsSubmitting(false);
 
     if (response.ok) {
-      alert('Confirmation email sent!');
+      alert('Confirmation emails sent!');
     } else {
-      alert('Failed to send confirmation email');
+      alert('Failed to send confirmation emails');
     }
   };
 
@@ -64,30 +81,49 @@ const ConfirmationPage = () => {
           <strong className="block text-gray-700">Time:</strong>
           <p className="text-gray-900">{time}</p>
         </div>
-        <div>
-          <label htmlFor="email" className="block text-gray-700 font-semibold">
-            Your Email:
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={handleEmailChange}
-            className="mt-2 w-full p-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:outline-none"
-            placeholder="Enter your email"
-          />
-          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-        </div>
+
+        {/* Email Fields */}
+        {emailList.map((email, index) => (
+          <div key={index} className="flex items-center gap-2">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => handleEmailChange(index, e.target.value)}
+              className="w-full p-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:outline-none"
+              placeholder={`Enter email ${index + 1}`}
+            />
+            {emailList.length > 1 && (
+              <button
+                className="text-red-500 hover:text-red-700"
+                onClick={() => handleRemoveEmail(index)}
+              >
+                Remove
+              </button>
+            )}
+          </div>
+        ))}
+
+        {/* Add Email Button */}
+        <button
+          onClick={handleAddEmail}
+          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+        >
+          Add Another Email
+        </button>
+
+        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       </div>
+
+      {/* Submit Button */}
       <div className="mt-6 text-center">
         <button
           className={`px-6 py-2 rounded-lg text-white ${
             isSubmitting ? 'bg-gray-400' : 'bg-green-500 hover:bg-green-600'
           }`}
-          onClick={handleSendEmail}
+          onClick={handleSendEmails}
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Sending...' : 'Confirm and Send Email'}
+          {isSubmitting ? 'Sending...' : 'Confirm and Send Emails'}
         </button>
       </div>
     </div>

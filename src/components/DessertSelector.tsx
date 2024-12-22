@@ -28,7 +28,7 @@ export const DessertSpotSelector: React.FC<DessertSpotSelectorProps> = ({ onSele
   useEffect(() => {
     if (!window.google) {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDjwR3F1GrzRTdS7QYy3akXbRhnsCX3t_8&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCxdZLaoUpwTI7Lkdkiuu-xxTLZrN2Uye8&libraries=places`;
       script.async = true;
       document.head.appendChild(script);
     }
@@ -92,6 +92,11 @@ export const DessertSpotSelector: React.FC<DessertSpotSelectorProps> = ({ onSele
     onSelect(formatted); // Pass formatted string to parent
   };
 
+  const handleNoneSelect = () => {
+    setSelectedDessert('None');
+    onSelect('None'); // Notify parent that "None" is selected
+  };
+
   return (
     <div className="p-6 bg-white shadow rounded-lg">
       <h2 className="text-xl font-semibold mb-6">Choose a Dessert Spot</h2>
@@ -100,25 +105,29 @@ export const DessertSpotSelector: React.FC<DessertSpotSelectorProps> = ({ onSele
           <button
             key={spot}
             onClick={() => handleSelect(spot)}
-            className="bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-600"
+            className={`px-4 py-2 rounded-lg ${
+              selectedDessert === spot
+                ? 'bg-green-500 text-white'
+                : 'bg-pink-500 text-white hover:bg-pink-600'
+            }`}
           >
             {spot}
           </button>
         ))}
-      </div> 
-      <div className = "flex items-center gap-2 mb-6">
-        <input 
-        type = "text"
-        value = {manualSearchTerm}
-        onChange = {(e) => setManualSearchTerm(e.target.value)} 
-        placeholder = "Search for a place..."
-        className = "border px-4 py-2 rounded-lg w-full"
+      </div>
+      <div className="flex items-center gap-2 mb-6">
+        <input
+          type="text"
+          value={manualSearchTerm}
+          onChange={(e) => setManualSearchTerm(e.target.value)}
+          placeholder="Search for a place..."
+          className="border px-4 py-2 rounded-lg w-full"
         />
         <button
-        onClick={handleManualSearch}
-        className = "bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+          onClick={handleManualSearch}
+          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
         >
-        Search
+          Search
         </button>
       </div>
 
@@ -142,6 +151,15 @@ export const DessertSpotSelector: React.FC<DessertSpotSelectorProps> = ({ onSele
           </div>
         ))}
       </div>
+
+      <button
+        onClick={handleNoneSelect}
+        className={`mt-6 w-full bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 ${
+          selectedDessert === 'None' ? 'bg-gray-700' : ''
+        }`}
+      >
+        None
+      </button>
     </div>
   );
 };

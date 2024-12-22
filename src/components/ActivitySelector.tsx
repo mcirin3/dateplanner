@@ -8,8 +8,8 @@ interface ActivityPlace {
   rating: number;
 }
 
-const ACTIVITIES = [
-  'Bowling', 'Pool', 'Mini Golf', 'Walk', 'Drive', 
+const DEFAULT_ACTIVITIES = [
+  'Bowling', 'Pool', 'Mini Golf', 'Walk', 'Drive',
   'Movie', 'Concert', 'Art Gallery', 'Hiking', 'Picnic', 'Billiards'
 ];
 
@@ -22,11 +22,13 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
   const [selectedActivity, setSelectedActivity] = useState<string | null>(null); // Track activity
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>(''); // State for search input
+  const [customActivities, setCustomActivities] = useState<string[]>([]); // Custom activities from search
 
   useEffect(() => {
     if (!window.google) {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDjwR3F1GrzRTdS7QYy3akXbRhnsCX3t_8&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCxdZLaoUpwTI7Lkdkiuu-xxTLZrN2Uye8&libraries=places`;
       script.async = true;
       document.head.appendChild(script);
     }
@@ -83,11 +85,27 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
     onSelect(formatted); // Pass formatted string to parent
   };
 
+  const handleNoneSelect = () => {
+    setSelectedActivity('None');
+    onSelect('None');
+  };
+
+  const handleSearch = () => {
+    if (searchTerm.trim() !== '') {
+      setCustomActivities((prev) => Array.from(new Set([...prev, searchTerm.trim()]))); // Add search term as activity
+      handleActivitySelect(searchTerm.trim());
+    } else {
+      setError('Please enter a valid search term.');
+    }
+  };
+
   return (
     <div className="p-6 bg-white shadow rounded-lg">
       <h2 className="text-xl font-semibold mb-6">Choose an Activity</h2>
+
+      {/* Default and custom activities */}
       <div className="flex flex-wrap gap-4 mb-6">
-        {ACTIVITIES.map((activity) => (
+        {[...DEFAULT_ACTIVITIES, ...customActivities].map((activity) => (
           <button
             key={activity}
             onClick={() => handleActivitySelect(activity)}
@@ -100,9 +118,27 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
         ))}
       </div>
 
+      {/* Search bar */}
+      <div className="flex items-center gap-2 mb-6">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search for an activity..."
+          className="border px-4 py-2 rounded-lg w-full"
+        />
+        <button
+          onClick={handleSearch}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+        >
+          Search
+        </button>
+      </div>
+
       {isLoading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
+      {/* Nearby places */}
       <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {nearbyPlaces.map((place, index) => (
           <div
@@ -120,6 +156,16 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
           </div>
         ))}
       </div>
+
+      {/* None option */}
+      <button
+        onClick={handleNoneSelect}
+        className={`mt-6 w-full bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 ${
+          selectedActivity === 'None' ? 'bg-gray-700' : ''
+        }`}
+      >
+        None
+      </button>
     </div>
   );
 };

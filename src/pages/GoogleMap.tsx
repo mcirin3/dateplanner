@@ -47,7 +47,7 @@ const GoogleMap: React.FC<MapProps> = ({ latitude, longitude, category }) => {
   return (
     <>
       <Script
-        src={`https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places`}
+        src={`https://maps.googleapis.com/maps/api/js?key=AIzaSyCxdZLaoUpwTI7Lkdkiuu-xxTLZrN2Uye8&libraries=places`}
         onLoad={() => console.log("Google Maps script loaded!")}
       />
       <div

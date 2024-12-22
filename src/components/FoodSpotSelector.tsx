@@ -28,7 +28,7 @@ export const FoodSpotSelector: React.FC<FoodSpotSelectorProps> = ({ onSelect }) 
   useEffect(() => {
     if (!window.google) {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDjwR3F1GrzRTdS7QYy3akXbRhnsCX3t_8&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCxdZLaoUpwTI7Lkdkiuu-xxTLZrN2Uye8&libraries=places`;
       script.async = true;
       document.head.appendChild(script);
     }
@@ -92,6 +92,11 @@ export const FoodSpotSelector: React.FC<FoodSpotSelectorProps> = ({ onSelect }) 
     onSelect(formatted);
   };
 
+  const handleNoneSelect = () => {
+    setSelectedRestaurant('None');
+    onSelect('None');
+  };
+
   return (
     <div className="p-6 bg-white shadow rounded-lg">
       <h2 className="text-xl font-semibold mb-6">Choose a Food Spot</h2>
@@ -143,6 +148,15 @@ export const FoodSpotSelector: React.FC<FoodSpotSelectorProps> = ({ onSelect }) 
           </div>
         ))}
       </div>
+
+      <button
+        onClick={handleNoneSelect}
+        className={`mt-6 w-full bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 ${
+          selectedRestaurant === 'None' ? 'bg-gray-700' : ''
+        }`}
+      >
+        None
+      </button>
     </div>
   );
 };

@@ -11,7 +11,7 @@ interface DessertSpot {
 const DESSERT_CATEGORIES = [
   'Ice Cream', 'Bakery', 'Donuts', 'Frozen Yogurt',
   'Cupcakes', 'Pastries', 'Pies', 'Cookies', 'Chocolates',
-  'Gelato', 'Crepes', 'Candy', 'Bubble Tea', 'Milk Tea'
+  'Gelato', 'Crepes', 'Candy', 'Bubble Tea', 'Milk Tea',
 ];
 
 interface DessertSpotSelectorProps {
@@ -20,7 +20,7 @@ interface DessertSpotSelectorProps {
 
 export const DessertSpotSelector: React.FC<DessertSpotSelectorProps> = ({ onSelect }) => {
   const [nearbyDesserts, setNearbyDesserts] = useState<DessertSpot[]>([]);
-  const [selectedDessert, setSelectedDessert] = useState<string | null>(null); // Track the selected dessert spot
+  const [selectedDessert, setSelectedDessert] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [manualSearchTerm, setManualSearchTerm] = useState<string>('');
@@ -50,14 +50,14 @@ export const DessertSpotSelector: React.FC<DessertSpotSelectorProps> = ({ onSele
       const request = {
         location: new google.maps.LatLng(latitude, longitude),
         radius: 5000,
-        type: 'bakery', // General type for desserts
-        keyword: category, // Use category to filter results
+        type: 'bakery',
+        keyword: category,
       };
 
       service.nearbySearch(request, (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
           const desserts = results.map((place) => ({
-            name: place.name || 'Unknown', // Fallback to 'Unknown' if name is undefined
+            name: place.name || 'Unknown',
             address: place.vicinity || 'Unknown address',
             rating: place.rating || 0,
           }));
@@ -88,33 +88,37 @@ export const DessertSpotSelector: React.FC<DessertSpotSelectorProps> = ({ onSele
 
   const handleDessertSelect = (dessert: DessertSpot) => {
     const formatted = `${dessert.name}, ${dessert.address} (Rating: ${dessert.rating}/5)`;
-    setSelectedDessert(formatted); // Update selected dessert spot
-    onSelect(formatted); // Pass formatted string to parent
+    setSelectedDessert(formatted);
+    onSelect(formatted);
   };
 
   const handleNoneSelect = () => {
     setSelectedDessert('None');
-    onSelect('None'); // Notify parent that "None" is selected
+    onSelect('None');
   };
 
   return (
-    <div className="p-6 bg-white shadow rounded-lg">
-      <h2 className="text-xl font-semibold mb-6">Choose a Dessert Spot</h2>
+    <div className="p-6 bg-auto shadow rounded-lg max-w-4xl mx-auto overflow-hidden">
+      <h2 className="text-2xl font-semibold mb-6">Choose a Dessert Spot</h2>
+
+      {/* Dessert Categories */}
       <div className="flex flex-wrap gap-4 mb-6">
         {DESSERT_CATEGORIES.map((spot) => (
           <button
             key={spot}
             onClick={() => handleSelect(spot)}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-4 py-2 rounded-lg text-white ${
               selectedDessert === spot
-                ? 'bg-green-500 text-white'
-                : 'bg-pink-500 text-white hover:bg-pink-600'
+                ? 'bg-green-500'
+                : 'bg-pink-500 hover:bg-pink-600'
             }`}
           >
             {spot}
           </button>
         ))}
       </div>
+
+      {/* Manual Search */}
       <div className="flex items-center gap-2 mb-6">
         <input
           type="text"
@@ -134,7 +138,8 @@ export const DessertSpotSelector: React.FC<DessertSpotSelectorProps> = ({ onSele
       {isLoading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
-      <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Scrollable Dessert List */}
+      <div className="max-h-96 overflow-y-auto flex flex-col gap-4">
         {nearbyDesserts.map((dessert, index) => (
           <div
             key={index}
@@ -145,13 +150,14 @@ export const DessertSpotSelector: React.FC<DessertSpotSelectorProps> = ({ onSele
             }`}
             onClick={() => handleDessertSelect(dessert)}
           >
-            <h3 className="text-lg font-bold mb-2">{dessert.name}</h3>
-            <p className="text-sm">{dessert.address}</p>
-            <p className="mt-2">Rating: {dessert.rating}/5</p>
+            <h3 className="text-lg font-semibold">{dessert.name}</h3>
+            <p className="text-sm text-gray-600">{dessert.address}</p>
+            <p className="mt-2 text-sm">Rating: {dessert.rating}/5</p>
           </div>
         ))}
       </div>
 
+      {/* None Option */}
       <button
         onClick={handleNoneSelect}
         className={`mt-6 w-full bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 ${

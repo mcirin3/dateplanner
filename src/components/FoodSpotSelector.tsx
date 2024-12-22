@@ -1,29 +1,28 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 
-interface Restaurant {
+interface FoodSpot {
   name: string;
   address: string;
   rating: number;
 }
 
 const FOOD_CATEGORIES = [
-  'Dim Sum', 'Tacos', 'Curry', 'Filipino',
-  'Burgers', 'Spaghetti', 'Sushi', 'Ramen', 'Korean BBQ',
-  'Thai', 'Mediterranean', 'Fast Food', 'Dan Dan Noodles',
-  'Pho', 'Udon', 'Dumplings', 'Korean Fried Chicken',
-  'Chipotle', 'Pizza', 'South African', 'Indian' 
+  'Italian', 'Chinese', 'Mexican', 'Indian', 'Japanese', 'French', 'American', 'Mediterranean',
+  'Korean', 'Thai', 'Vietnamese', 'Greek', 'Spanish', 'Turkish', 'Caribbean',
 ];
 
 interface FoodSpotSelectorProps {
-  onSelect: (selection: string) => void;
+  onSelect: (selection: string) => void; // Pass selected data to parent
 }
 
 export const FoodSpotSelector: React.FC<FoodSpotSelectorProps> = ({ onSelect }) => {
-  const [nearbyRestaurants, setNearbyRestaurants] = useState<Restaurant[]>([]);
-  const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(null);
+  const [nearbyFoodSpots, setNearbyFoodSpots] = useState<FoodSpot[]>([]);
+  const [selectedFoodSpot, setSelectedFoodSpot] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [manualSearchTerm, setManualSearchTerm] = useState<string>(''); // State for manual input
+  const [manualSearchTerm, setManualSearchTerm] = useState<string>('');
 
   useEffect(() => {
     if (!window.google) {
@@ -34,7 +33,7 @@ export const FoodSpotSelector: React.FC<FoodSpotSelectorProps> = ({ onSelect }) 
     }
   }, []);
 
-  const findNearestRestaurants = async (query: string) => {
+  const findNearestFoodSpots = async (category: string) => {
     setIsLoading(true);
     setError(null);
 
@@ -49,21 +48,21 @@ export const FoodSpotSelector: React.FC<FoodSpotSelectorProps> = ({ onSelect }) 
 
       const request = {
         location: new google.maps.LatLng(latitude, longitude),
-        radius: 15000,
+        radius: 5000,
         type: 'restaurant',
-        keyword: query,
+        keyword: category,
       };
 
       service.nearbySearch(request, (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-          const restaurants = results.map((place) => ({
+          const foodSpots = results.map((place) => ({
             name: place.name || 'Unknown',
             address: place.vicinity || 'Unknown address',
             rating: place.rating || 0,
           }));
-          setNearbyRestaurants(restaurants.slice(0, 6));
+          setNearbyFoodSpots(foodSpots.slice(0, 6));
         } else {
-          setError('No nearby restaurants found.');
+          setError('No nearby food spots found.');
         }
         setIsLoading(false);
       });
@@ -75,43 +74,50 @@ export const FoodSpotSelector: React.FC<FoodSpotSelectorProps> = ({ onSelect }) 
   };
 
   const handleSelect = (spot: string) => {
-    findNearestRestaurants(spot);
+    findNearestFoodSpots(spot);
   };
 
   const handleManualSearch = () => {
     if (manualSearchTerm.trim() !== '') {
-      findNearestRestaurants(manualSearchTerm);
+      findNearestFoodSpots(manualSearchTerm);
     } else {
       setError('Please enter a valid search term.');
     }
   };
 
-  const handleRestaurantSelect = (restaurant: Restaurant) => {
-    const formatted = `${restaurant.name}, ${restaurant.address} (Rating: ${restaurant.rating}/5)`;
-    setSelectedRestaurant(formatted);
+  const handleFoodSelect = (foodSpot: FoodSpot) => {
+    const formatted = `${foodSpot.name}, ${foodSpot.address} (Rating: ${foodSpot.rating}/5)`;
+    setSelectedFoodSpot(formatted);
     onSelect(formatted);
   };
 
   const handleNoneSelect = () => {
-    setSelectedRestaurant('None');
+    setSelectedFoodSpot('None');
     onSelect('None');
   };
 
   return (
-    <div className="p-6 bg-white shadow rounded-lg">
-      <h2 className="text-xl font-semibold mb-6">Choose a Food Spot</h2>
+    <div className="p-6 bg-auto shadow rounded-lg max-w-4xl mx-auto overflow-hidden">
+      <h2 className="text-2xl font-semibold mb-6">Choose a Food Spot</h2>
+
+      {/* Food Categories */}
       <div className="flex flex-wrap gap-4 mb-6">
         {FOOD_CATEGORIES.map((spot) => (
           <button
             key={spot}
             onClick={() => handleSelect(spot)}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+            className={`px-4 py-2 rounded-lg text-white ${
+              selectedFoodSpot === spot
+                ? 'bg-green-500'
+                : 'bg-orange-500 hover:bg-orange-600'
+            }`}
           >
             {spot}
           </button>
         ))}
       </div>
 
+      {/* Manual Search */}
       <div className="flex items-center gap-2 mb-6">
         <input
           type="text"
@@ -131,28 +137,30 @@ export const FoodSpotSelector: React.FC<FoodSpotSelectorProps> = ({ onSelect }) 
       {isLoading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
-      <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {nearbyRestaurants.map((restaurant, index) => (
+      {/* Scrollable Food List with Horizontal Rectangular Cards */}
+      <div className="max-h-96 overflow-y-auto flex flex-wrap gap-6">
+        {nearbyFoodSpots.map((foodSpot, index) => (
           <div
             key={index}
-            className={`p-4 rounded-lg shadow-lg cursor-pointer ${
-              selectedRestaurant === `${restaurant.name}, ${restaurant.address} (Rating: ${restaurant.rating}/5)`
+            className={`flex flex-col items-center justify-between p-4 w-64 h-32 rounded-lg shadow-lg cursor-pointer overflow-hidden ${
+              selectedFoodSpot === `${foodSpot.name}, ${foodSpot.address} (Rating: ${foodSpot.rating}/5)`
                 ? 'bg-green-500 text-white'
                 : 'bg-white hover:bg-gray-100'
             }`}
-            onClick={() => handleRestaurantSelect(restaurant)}
+            onClick={() => handleFoodSelect(foodSpot)}
           >
-            <h3 className="text-lg font-bold mb-2">{restaurant.name}</h3>
-            <p className="text-sm">{restaurant.address}</p>
-            <p className="mt-2">Rating: {restaurant.rating}/5</p>
+            <h3 className="text-lg font-semibold text-center overflow-ellipsis whitespace-nowrap text-ellipsis">{foodSpot.name}</h3>
+            <p className="text-sm text-center overflow-ellipsis whitespace-nowrap text-ellipsis">{foodSpot.address}</p>
+            <p className="mt-2 text-sm text-center">Rating: {foodSpot.rating}/5</p>
           </div>
         ))}
       </div>
 
+      {/* None Option */}
       <button
         onClick={handleNoneSelect}
         className={`mt-6 w-full bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 ${
-          selectedRestaurant === 'None' ? 'bg-gray-700' : ''
+          selectedFoodSpot === 'None' ? 'bg-gray-700' : ''
         }`}
       >
         None

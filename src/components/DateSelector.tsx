@@ -25,7 +25,7 @@ export const DateSelector: React.FC<DateSelectorProps> = ({ onSelect }) => {
   }
 
   return (
-    <div className="p-4 bg-white shadow rounded-lg">
+    <div className="p-4 bg-auto shadow rounded-lg">
       <h2 className="text-xl font-semibold mb-4">Select Date and Time</h2>
       <div className="space-y-4">
         <div>

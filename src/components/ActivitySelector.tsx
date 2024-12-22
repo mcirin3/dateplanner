@@ -10,7 +10,7 @@ interface ActivityPlace {
 
 const DEFAULT_ACTIVITIES = [
   'Bowling', 'Pool', 'Mini Golf', 'Walk', 'Drive',
-  'Movie', 'Concert', 'Art Gallery', 'Hiking', 'Picnic', 'Billiards'
+  'Movie', 'Concert', 'Art Gallery', 'Hiking', 'Picnic', 'Billiards','Shopping'
 ];
 
 interface ActivitySelectorProps {
@@ -61,7 +61,7 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
             address: place.vicinity || 'Unknown address',
             rating: place.rating || 0,
           }));
-          setNearbyPlaces(places.slice(0, 6));
+          setNearbyPlaces(places.slice(0, 10)); // Show up to 10 places
         } else {
           setError('No nearby places found.');
         }
@@ -100,7 +100,7 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
   };
 
   return (
-    <div className="p-6 bg-white shadow rounded-lg">
+    <div className="p-6 bg-auto shadow rounded-lg">
       <h2 className="text-xl font-semibold mb-6">Choose an Activity</h2>
 
       {/* Default and custom activities */}
@@ -138,21 +138,21 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
       {isLoading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
-      {/* Nearby places */}
-      <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Nearby places in a scrollable list */}
+      <div className="max-h-72 overflow-y-auto border rounded-lg p-4 bg-gray-50">
         {nearbyPlaces.map((place, index) => (
           <div
             key={index}
-            className={`p-4 rounded-lg shadow-lg cursor-pointer ${
+            className={`p-4 mb-4 rounded-lg shadow cursor-pointer ${
               selectedActivity === `${place.name}, ${place.address} (Rating: ${place.rating}/5)`
                 ? 'bg-green-500 text-white'
                 : 'bg-white hover:bg-gray-100'
             }`}
             onClick={() => handlePlaceSelect(place)}
           >
-            <h3 className="text-lg font-bold mb-2">{place.name}</h3>
-            <p className="text-sm">{place.address}</p>
-            <p className="mt-2">Rating: {place.rating}/5</p>
+            <h3 className="text-lg font-bold mb-1">{place.name}</h3>
+            <p className="text-sm text-gray-600">{place.address}</p>
+            <p className="text-sm">Rating: {place.rating}/5</p>
           </div>
         ))}
       </div>

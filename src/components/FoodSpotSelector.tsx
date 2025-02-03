@@ -27,7 +27,7 @@ export const FoodSpotSelector: React.FC<FoodSpotSelectorProps> = ({ onSelect }) 
   useEffect(() => {
     if (!window.google) {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCxdZLaoUpwTI7Lkdkiuu-xxTLZrN2Uye8&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBgcdvdX8pc73jXaPy2YU04tUQ-eIsTWBA&libraries=places`;
       script.async = true;
       document.head.appendChild(script);
     }

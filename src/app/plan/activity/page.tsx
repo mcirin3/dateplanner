@@ -1,7 +1,7 @@
 // ActivitySelection.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ActivitySelector } from '@/components/ActivitySelector';
 
@@ -26,7 +26,9 @@ export default function ActivitySelection() {
     <main className="container mx-auto p-8">
       <h1 className="text-3xl font-bold mb-8">Select an Activity</h1>
 
-      <ActivitySelector onSelect={setActivity} />
+      <Suspense fallback={<div>Loading...</div>}>
+        <ActivitySelector onSelect={setActivity} />
+      </Suspense>
 
       <button
         onClick={handleNext}

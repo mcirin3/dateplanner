@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import {loadGoogleMaps} from '../utils/loadGoogleMaps';
 
 interface FoodSpot {
   name: string;
@@ -25,12 +26,7 @@ export const FoodSpotSelector: React.FC<FoodSpotSelectorProps> = ({ onSelect }) 
   const [manualSearchTerm, setManualSearchTerm] = useState<string>('');
 
   useEffect(() => {
-    if (!window.google) {
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBgcdvdX8pc73jXaPy2YU04tUQ-eIsTWBA&libraries=places`;
-      script.async = true;
-      document.head.appendChild(script);
-    }
+    loadGoogleMaps();
   }, []);
 
   const findNearestFoodSpots = async (category: string) => {

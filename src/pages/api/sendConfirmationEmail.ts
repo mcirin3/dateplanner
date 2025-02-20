@@ -23,7 +23,7 @@ const sendConfirmationEmail = async ({
     service: 'gmail',
     auth: {
       user: 'mcirineo9@gmail.com', // Replace with your email
-      pass: 'todb ikva wjog pifr', // Use an app password if 2FA is enabled
+      pass: 'pmlj pxfx yqci ormg', // Use an app password if 2FA is enabled
     },
   });
 

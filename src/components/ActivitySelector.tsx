@@ -1,8 +1,11 @@
-'use client';
-
 import React, { useState, useEffect } from 'react';
+import {loadGoogleMaps} from '../utils/loadGoogleMaps';
 
-interface ActivityPlace {
+interface ActivitySelectionProps {
+  onSelect: (activity: string) => void;
+}
+
+interface ActivitySpot {
   name: string;
   address: string;
   rating: number;
@@ -10,31 +13,22 @@ interface ActivityPlace {
 
 const DEFAULT_ACTIVITIES = [
   'Bowling', 'Pool', 'Mini Golf', 'Walk', 'Drive',
-  'Movie', 'Concert', 'Art Gallery', 'Hiking', 'Picnic', 'Billiards','Shopping'
+  'Movie', 'Concert', 'Art Gallery', 'Hiking', 'Picnic', 'Billiards', 'Shopping'
 ];
 
-interface ActivitySelectorProps {
-  onSelect: (activity: string) => void; // Pass selected data to parent
-}
-
-export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) => {
-  const [nearbyPlaces, setNearbyPlaces] = useState<ActivityPlace[]>([]);
-  const [selectedActivity, setSelectedActivity] = useState<string | null>(null); // Track activity
+export const ActivitySelector: React.FC<ActivitySelectionProps> = ({ onSelect }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [nearbyPlaces, setNearbyPlaces] = useState<ActivitySpot[]>([]);
+  const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState<string>(''); // State for search input
-  const [customActivities, setCustomActivities] = useState<string[]>([]); // Custom activities from search
+  const [customActivities, setCustomActivities] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!window.google) {
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBgcdvdX8pc73jXaPy2YU04tUQ-eIsTWBA&libraries=places`;
-      script.async = true;
-      document.head.appendChild(script);
-    }
+    loadGoogleMaps();
   }, []);
 
-  const findNearbyPlaces = async (activity: string) => {
+  const findNearestPlace = async (category: string) => {
     setIsLoading(true);
     setError(null);
 
@@ -51,17 +45,17 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
         location: new google.maps.LatLng(latitude, longitude),
         radius: 5000,
         type: 'establishment',
-        keyword: activity,
+        keyword: category,
       };
 
       service.nearbySearch(request, (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-          const places = results.map((place) => ({
+          const activitySpots = results.map((place) => ({
             name: place.name || 'Unknown',
             address: place.vicinity || 'Unknown address',
             rating: place.rating || 0,
           }));
-          setNearbyPlaces(places.slice(0, 10)); // Show up to 10 places
+          setNearbyPlaces(activitySpots.slice(0, 6));
         } else {
           setError('No nearby places found.');
         }
@@ -74,15 +68,19 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
     }
   };
 
-  const handleActivitySelect = (activity: string) => {
-    setSelectedActivity(activity);
-    findNearbyPlaces(activity); // Fetch places for the selected activity
+  const handleSearch = () => {
+    if (searchTerm.trim() !== '') {
+      const newActivity = searchTerm.trim();
+      setCustomActivities((prev) => Array.from(new Set([...prev, newActivity])));
+      setSelectedActivity(newActivity);
+      onSelect(newActivity);
+    }
   };
 
-  const handlePlaceSelect = (place: ActivityPlace) => {
-    const formatted = `${place.name}, ${place.address} (Rating: ${place.rating}/5)`;
-    setSelectedActivity(formatted); // Highlight selected activity
-    onSelect(formatted); // Pass formatted string to parent
+  const handleSelect = (activity: string) => {
+    setSelectedActivity(activity);
+    onSelect(activity);
+    findNearestPlace(activity);
   };
 
   const handleNoneSelect = () => {
@@ -90,27 +88,17 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
     onSelect('None');
   };
 
-  const handleSearch = () => {
-    if (searchTerm.trim() !== '') {
-      setCustomActivities((prev) => Array.from(new Set([...prev, searchTerm.trim()]))); // Add search term as activity
-      handleActivitySelect(searchTerm.trim());
-    } else {
-      setError('Please enter a valid search term.');
-    }
-  };
-
   return (
     <div className="p-6 bg-auto shadow rounded-lg">
       <h2 className="text-xl font-semibold mb-6">Choose an Activity</h2>
 
-      {/* Default and custom activities */}
       <div className="flex flex-wrap gap-4 mb-6">
         {[...DEFAULT_ACTIVITIES, ...customActivities].map((activity) => (
           <button
             key={activity}
-            onClick={() => handleActivitySelect(activity)}
-            className={`p-2 border rounded ${
-              selectedActivity === activity ? 'bg-green-500 text-white' : 'hover:bg-green-100'
+            onClick={() => handleSelect(activity)}
+            className={`p-2 border rounded hover:bg-green-100 ${
+              selectedActivity === activity ? 'bg-green-500 text-white' : ''
             }`}
           >
             {activity}
@@ -118,7 +106,6 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
         ))}
       </div>
 
-      {/* Search bar */}
       <div className="flex items-center gap-2 mb-6">
         <input
           type="text"
@@ -127,10 +114,7 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
           placeholder="Search for an activity..."
           className="border px-4 py-2 rounded-lg w-full"
         />
-        <button
-          onClick={handleSearch}
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-        >
+        <button onClick={handleSearch} className="bg-blue-500 text-white px-4 py-2 rounded-lg">
           Search
         </button>
       </div>
@@ -138,26 +122,24 @@ export const ActivitySelector: React.FC<ActivitySelectorProps> = ({ onSelect }) 
       {isLoading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
-      {/* Nearby places in a scrollable list */}
-      <div className="max-h-72 overflow-y-auto border rounded-lg p-4 bg-gray-50">
-        {nearbyPlaces.map((place, index) => (
+      {/* Scrollable Nearby Places List */}
+      <div className="max-h-96 overflow-y-auto flex flex-wrap gap-6">
+        {nearbyPlaces.map((spot, index) => (
           <div
             key={index}
-            className={`p-4 mb-4 rounded-lg shadow cursor-pointer ${
-              selectedActivity === `${place.name}, ${place.address} (Rating: ${place.rating}/5)`
-                ? 'bg-green-500 text-white'
-                : 'bg-white hover:bg-gray-100'
+            className={`flex flex-col items-center justify-between p-4 w-64 h-32 rounded-lg shadow-lg cursor-pointer overflow-hidden ${
+              selectedActivity === spot.name ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-100'
             }`}
-            onClick={() => handlePlaceSelect(place)}
+            onClick={() => handleSelect(spot.name)}
           >
-            <h3 className="text-lg font-bold mb-1">{place.name}</h3>
-            <p className="text-sm text-gray-600">{place.address}</p>
-            <p className="text-sm">Rating: {place.rating}/5</p>
+            <h3 className="text-lg font-semibold text-center overflow-ellipsis whitespace-nowrap">{spot.name}</h3>
+            <p className="text-sm text-center overflow-ellipsis whitespace-nowrap">{spot.address}</p>
+            <p className="mt-2 text-sm text-center">Rating: {spot.rating}/5</p>
           </div>
         ))}
       </div>
 
-      {/* None option */}
+      {/* None Option */}
       <button
         onClick={handleNoneSelect}
         className={`mt-6 w-full bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 ${

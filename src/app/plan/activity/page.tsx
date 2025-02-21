@@ -23,6 +23,11 @@ const ActivitySelectionContent = () => {
     );
   };
 
+  const handleBack = () => {
+    // Navigate back to the food selection page while preserving foodSpot
+    router.push(`/plan/food?foodSpot=${encodeURIComponent(foodSpot)}`);
+  };
+
   return (
     <main className="container mx-auto p-8">
       <h1 className="text-3xl font-bold mb-8">Select an Activity</h1>
@@ -32,12 +37,21 @@ const ActivitySelectionContent = () => {
         <ActivitySelector onSelect={setActivity} />
       </Suspense>
 
-      <button
-        onClick={handleNext}
-        className="mt-6 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600"
-      >
-        Next
-      </button>
+      <div className="mt-6 flex gap-4">
+        <button
+          onClick={handleBack}
+          className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600"
+        >
+          Back
+        </button>
+
+        <button
+          onClick={handleNext}
+          className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600"
+        >
+          Next
+        </button>
+      </div>
     </main>
   );
 };

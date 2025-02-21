@@ -37,11 +37,11 @@ export const DessertSpotSelector: React.FC<DessertSpotSelectorProps> = ({ onSele
   const findNearestDesserts = async (category: string, lat?: number, lng?: number) => {
     setIsLoading(true);
     setError(null);
-
+  
     try {
       let latitude = lat;
       let longitude = lng;
-
+  
       if (!latitude || !longitude) {
         const position = await new Promise<GeolocationPosition>((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(resolve, reject);
@@ -49,30 +49,31 @@ export const DessertSpotSelector: React.FC<DessertSpotSelectorProps> = ({ onSele
         latitude = position.coords.latitude;
         longitude = position.coords.longitude;
       }
-
+  
       const map = new google.maps.Map(document.createElement('div'));
       const service = new google.maps.places.PlacesService(map);
-
+  
+      // Allow broader categories if the keyword is set
       const request = {
         location: new google.maps.LatLng(latitude, longitude),
-        radius: 5000,
-        type: 'bakery',
-        keyword: category,
+        radius: 10000,
+        type: 'bakery',  // You can modify this to broader categories like 'dessert'
+        keyword: category,  // Keyword to narrow down but don't limit the results strictly to one
       };
-
+  
       service.nearbySearch(request, (results, status) => {
         if (status !== google.maps.places.PlacesServiceStatus.OK || !results || results.length === 0) {
           setError('No nearby dessert spots found.');
           setIsLoading(false);
           return;
         }
-
+  
         const desserts = (results || []).map((place) => ({
           name: place.name || 'Unknown',
           address: place.vicinity || 'Unknown address',
           rating: place.rating || 0,
         }));
-
+  
         setNearbyDesserts(desserts);
         setIsLoading(false);
       });

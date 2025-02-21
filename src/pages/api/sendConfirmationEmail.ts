@@ -9,7 +9,8 @@ interface SendConfirmationEmailParams {
   dessertSpot: string;
   date: string;
   time: string;
-}
+} 
+
 
 const sendConfirmationEmail = async ({
   emails,
@@ -22,14 +23,14 @@ const sendConfirmationEmail = async ({
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'mcirineo9@gmail.com', // Replace with your email
-      pass: 'pmlj pxfx yqci ormg', // Use an app password if 2FA is enabled
+      user: process.env.EMAIL_USER, // Replace with your email
+      pass: process.env.EMAIL_SEQUENCE, // Use an app password if 2FA is enabled
     },
   });
 
   const emailPromises = emails.map((email) => {
     const mailOptions = {
-      from: 'mcirineo9@gmail.com', // Replace with your email
+      from: process.env.EMAIL_USER, // Replace with your email
       to: email, // Send email to each recipient
       subject: 'Your Date Plan Confirmation',
       text: `

@@ -166,6 +166,7 @@ export const FoodSpotSelector: React.FC<FoodSpotSelectorProps> = ({ onSelect }) 
       console.error(err);
     }
   };
+  
 
   const handleSelectCuisine = (cuisine: string) => {
     if (selectedCuisine === cuisine) {

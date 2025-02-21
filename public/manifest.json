@@ -1,0 +1,9 @@
+{
+    "name": "Date Planner",
+    "short_name": "Date",
+    "description": "An application to help you set up a date",
+    "start_url": "/plan/food",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#000000"
+  }

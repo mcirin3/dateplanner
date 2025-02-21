@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { DateSelector } from '@/components/DateSelector';
 
-export default function DateSelection() {
+const DateSelectionContent = () => {
   const searchParams = useSearchParams();
   
   // Get previous selections from URL
@@ -39,12 +39,15 @@ export default function DateSelection() {
     <main className="container mx-auto p-8">
       <h1 className="text-3xl font-bold mb-8">Select Date and Time</h1>
 
-      <DateSelector
-        onSelect={(selectedDate, selectedTime) => {
-          setDate(selectedDate);
-          setTime(selectedTime);
-        }}
-      />
+      {/* Wrap DateSelector inside Suspense */}
+      <Suspense fallback={<div>Loading date selector...</div>}>
+        <DateSelector
+          onSelect={(selectedDate, selectedTime) => {
+            setDate(selectedDate);
+            setTime(selectedTime);
+          }}
+        />
+      </Suspense>
 
       <button
         onClick={handleNext}
@@ -60,5 +63,13 @@ export default function DateSelection() {
         Back
       </button>
     </main>
+  );
+};
+
+export default function DateSelection() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DateSelectionContent />
+    </Suspense>
   );
 }

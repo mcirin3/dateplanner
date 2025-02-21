@@ -1,20 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { FoodSpotSelector } from '@/components/FoodSpotSelector';
 
-export default function FoodSpotSelection() {
+const FoodSpotSelectionContent = () => {
   const [foodSpot, setFoodSpot] = useState('');  // Use setFoodSpot to update foodSpot
   const router = useRouter();
 
   const handleNext = () => {
     if (!foodSpot) {
-      alert('Please select both a food spot');
+      alert('Please select a food spot');
       return;
     }
 
-    // Pass the selected foodSpot and activity to the next page
+    // Pass the selected foodSpot to the next page
     router.push(
       `/plan/activity?foodSpot=${encodeURIComponent(foodSpot)}`
     );
@@ -24,8 +24,10 @@ export default function FoodSpotSelection() {
     <main className="container mx-auto p-8">
       <h1 className="text-3xl font-bold mb-8">Select a Food Spot</h1>
 
-      {/* Here, assuming FoodSpotSelector lets you select a food spot */}
-      <FoodSpotSelector onSelect={setFoodSpot} />
+      {/* Only wrap FoodSpotSelector inside Suspense */}
+      <Suspense fallback={<div>Loading food spots...</div>}>
+        <FoodSpotSelector onSelect={setFoodSpot} />
+      </Suspense>
 
       <button
         onClick={handleNext}
@@ -34,5 +36,13 @@ export default function FoodSpotSelection() {
         Next
       </button>
     </main>
+  );
+};
+
+export default function FoodSpotSelection() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <FoodSpotSelectionContent />
+    </Suspense>
   );
 }

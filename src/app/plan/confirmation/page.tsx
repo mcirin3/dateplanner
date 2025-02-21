@@ -1,17 +1,17 @@
 'use client';
 
+import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useState } from 'react';
 
 const ConfirmationPage = () => {
-  const searchParams = useSearchParams(); // Use search params instead of query
-  const foodSpot = searchParams?.get('foodSpot') ?? ''; // Use default empty string if not found
+  const searchParams = useSearchParams();
+  const foodSpot = searchParams?.get('foodSpot') ?? '';
   const activity = searchParams?.get('activity') ?? ''; 
   const dessertSpot = searchParams?.get('dessertSpot') ?? ''; 
   const date = searchParams?.get('date') ?? ''; 
   const time = searchParams?.get('time') ?? ''; 
 
-  const [emailList, setEmailList] = useState<string[]>(['']); // Start with one email field
+  const [emailList, setEmailList] = useState<string[]>(['']);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -102,6 +102,7 @@ const ConfirmationPage = () => {
               <button
                 className="text-red-500 hover:text-red-700"
                 onClick={() => handleRemoveEmail(index)}
+                aria-label={`Remove email field ${index + 1}`}
               >
                 Remove
               </button>
@@ -136,4 +137,10 @@ const ConfirmationPage = () => {
   );
 };
 
-export default ConfirmationPage;
+export default function ConfirmationPageWrapper() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ConfirmationPage />
+    </Suspense>
+  );
+}
